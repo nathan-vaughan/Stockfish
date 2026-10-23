@@ -1,0 +1,58 @@
+{
+  "batch": "b01",
+  "candidate": 1,
+  "branch": "bench/b01-01-pawn-history-hoist",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "source_path": "src/movepick.cpp",
+  "hypothesis": "Resolve the invariant pawn-history bucket once per quiet move list, instead of repeating its key/mask/address lookup for each move. Atomic history entries are still read for every move. Compiler optimization may already remove some of this work; measurement is required.",
+  "scope": "Portable quiet-move scoring",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "build_type": "make build (release, LTO, without PGO)",
+    "host_cpu": "AMD EPYC 9V74",
+    "threads": 1,
+    "hash_mib": 16,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      }
+    }
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

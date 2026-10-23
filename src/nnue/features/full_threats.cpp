@@ -23,6 +23,7 @@
 #include <array>
 #include <cstdint>
 #include <initializer_list>
+#include <limits>
 
 #include "../../attacks.h"
 #include "../../bitboard.h"
@@ -104,7 +105,8 @@ constexpr auto init_threat_offsets() {
 constexpr auto helper_offsets = init_threat_offsets();
 
 constexpr auto init_index_luts() {
-    std::array<std::array<std::array<u32, 2>, PIECE_NB>, PIECE_NB> indices{};
+    static_assert(FullThreats::Dimensions <= std::numeric_limits<u16>::max());
+    std::array<std::array<std::array<u16, 2>, PIECE_NB>, PIECE_NB> indices{};
 
     for (Piece attacker : AllPieces)
     {
@@ -133,7 +135,8 @@ constexpr auto init_index_luts() {
 // The final index is calculated from summing data found in these two LUTs
 struct alignas(64) ThreatLUTs {
     // [attacker][attacked][from < to]
-    std::array<std::array<std::array<u32, 2>, PIECE_NB>, PIECE_NB> lut1 = init_index_luts();
+    // Feature offsets and the exclusion sentinel fit in 16 bits.
+    std::array<std::array<std::array<u16, 2>, PIECE_NB>, PIECE_NB> lut1 = init_index_luts();
     // [pt][from][to]
     std::array<std::array<std::array<u16, SQUARE_NB>, SQUARE_NB>, PIECE_TYPE_NB> lut2 =
       index_lut2_array();

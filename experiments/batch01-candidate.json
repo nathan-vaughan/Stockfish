@@ -1,0 +1,58 @@
+{
+  "batch": "b01",
+  "candidate": 2,
+  "branch": "bench/b01-02-threat-lut16",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "source_path": "src/nnue/features/full_threats.cpp",
+  "hypothesis": "Store the attacker/victim threat-offset table in 16-bit elements rather than 32-bit elements, reducing that table from 2048 to 1024 bytes. Integer promotion preserves index sums. Test whether the reduced cache footprint outweighs changed addressing and load instructions.",
+  "scope": "Portable NNUE threat indexing",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "build_type": "make build (release, LTO, without PGO)",
+    "host_cpu": "AMD EPYC 9V74",
+    "threads": 1,
+    "hash_mib": 16,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      }
+    }
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

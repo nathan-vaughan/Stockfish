@@ -1,0 +1,96 @@
+{
+  "batch": "b02",
+  "candidate": 7,
+  "branch": "bench/b02-07-direct-psq-indices",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "base_branch": "bench/b01-base",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Compute incremental PSQ offsets from a shared base",
+  "source_path": "src/nnue/features/k32q2.cpp",
+  "scope": "Portable incremental K32Q2 feature indexing",
+  "hypothesis": "For incremental piece-square feature changes, compute the king/color/queen-dependent base once and combine it with the small PieceSquareIndex table for each changed piece. This trades arithmetic for access to the larger precomputed offset table. Refresh logic and the public make_index function are unchanged.",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "host_cpu": "AMD EPYC 9V74",
+    "build_type": "release/LTO without PGO",
+    "threads": 1,
+    "hash_mib": 16,
+    "holdout_positions": 67,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "fdd3d5fbca7e0ca0f2437ffbbcab677e452ffefd7f165565ff204eba342411c3",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "fdd3d5fbca7e0ca0f2437ffbbcab677e452ffefd7f165565ff204eba342411c3",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      }
+    },
+    "extra_tests": []
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

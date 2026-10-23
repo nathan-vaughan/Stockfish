@@ -115,16 +115,24 @@ void K32Q2::append_changed_indices(Color           perspective,
                                    bool            opponentHasQueen,
                                    IndexList&      removed,
                                    IndexList&      added) {
-    removed.push_back(make_index(perspective, diff.from, diff.pc, ksq, opponentHasQueen));
+    const u16 flip = 56 * perspective;
+    const u16 orient = u16(OrientTBL[ksq]) ^ flip;
+    const u16 commonOffset = u16(KingBuckets[int(ksq) ^ flip]
+                                + (opponentHasQueen ? PS_NB : 0) + orient);
+    auto index = [&](Square square, Piece piece) {
+        return IndexType(square) ^ (PieceSquareIndex[perspective][piece] + commonOffset);
+    };
+
+    removed.push_back(index(diff.from, diff.pc));
     if (diff.to != SQ_NONE)
-        added.push_back(make_index(perspective, diff.to, diff.pc, ksq, opponentHasQueen));
+        added.push_back(index(diff.to, diff.pc));
 
     if (diff.remove_sq != SQ_NONE)
         removed.push_back(
-          make_index(perspective, diff.remove_sq, diff.remove_pc, ksq, opponentHasQueen));
+          index(diff.remove_sq, diff.remove_pc));
 
     if (diff.add_sq != SQ_NONE)
-        added.push_back(make_index(perspective, diff.add_sq, diff.add_pc, ksq, opponentHasQueen));
+        added.push_back(index(diff.add_sq, diff.add_pc));
 }
 
 bool K32Q2::requires_refresh(const DiffType& diff, Color perspective) {

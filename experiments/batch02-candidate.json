@@ -1,0 +1,96 @@
+{
+  "batch": "b02",
+  "candidate": 9,
+  "branch": "bench/b02-09-aligned-nnz-buffer",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "base_branch": "bench/b01-base",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Align AVX-512 nonzero-index storage to a cache line",
+  "source_path": "src/nnue/nnz_helper.h",
+  "scope": "AVX-512 NNZ temporary storage",
+  "hypothesis": "Align the AVX-512 NNZ array to 64 bytes. This can improve initial vector-store placement and sparse-index reads, while increasing stack padding and alignment requirements. Indices, counts and arithmetic are unchanged.",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "host_cpu": "AMD EPYC 9V74",
+    "build_type": "release/LTO without PGO",
+    "threads": 1,
+    "hash_mib": 16,
+    "holdout_positions": 67,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "886dcebb73d422524c2d7ce4861d6c5f6ac23353a1c9bc0139ecf7c2706dc808",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "886dcebb73d422524c2d7ce4861d6c5f6ac23353a1c9bc0139ecf7c2706dc808",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      }
+    },
+    "extra_tests": []
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

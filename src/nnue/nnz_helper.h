@@ -32,7 +32,7 @@ struct NNZInfo {
 #if defined(USE_AVX512)
     unsigned count = 0;
     // indices of non-zero chunks
-    u16 nnz[Dimensions / 4];
+    alignas(64) u16 nnz[Dimensions / 4];
 
     #ifdef USE_AVX512ICL
     alignas(64) static constexpr auto Indices = []() {

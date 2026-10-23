@@ -115,19 +115,23 @@ void partial_insertion_sort(ExtMove* begin, ExtMove* end, int limit) {
     if (begin == end)
         return;
 
-    MoveSorter sorter(*begin);
-    for (; p < end; ++p)
+    // For tiny lists, avoid initializing and writing the wide-vector sorter.
+    if (end - begin > 4)
     {
-        if (p->value >= limit)
+        MoveSorter sorter(*begin);
+        for (; p < end; ++p)
         {
-            if (sortedEnd - begin + 1 >= MoveSorter::MAX_ELEMENTS)  // sorter full
-                break;
+            if (p->value >= limit)
+            {
+                if (sortedEnd - begin + 1 >= MoveSorter::MAX_ELEMENTS)  // sorter full
+                    break;
 
-            sorter.insert(*p);
-            *p = *++sortedEnd;
+                sorter.insert(*p);
+                *p = *++sortedEnd;
+            }
         }
+        sorter.write_sorted(begin, sortedEnd - begin + 1);
     }
-    sorter.write_sorted(begin, sortedEnd - begin + 1);
     // Use scalar implementation for any remaining elements
 #endif
 

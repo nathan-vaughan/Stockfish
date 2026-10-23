@@ -439,14 +439,13 @@ class WeightRows {
     void append_psq(const PSQFeatureSet::IndexList& list, const FeatureTransformer& ft) {
         assert(count + list.ssize() <= MaxRows);
         for (int i = 0; i < list.ssize(); ++i)
-            rows[count++] = &ft.weights[list[i] * Dimensions];
+            append_row(&ft.weights[list[i] * Dimensions]);
     }
 
     void append_threat(const ThreatFeatureSet::IndexList& list, const FeatureTransformer& ft) {
         assert(count + list.ssize() <= MaxRows);
         for (int i = 0; i < list.ssize(); ++i)
-            rows[count++] =
-              reinterpret_cast<const i8*>(&ft.threatAndPpWeights[list[i] * Dimensions]);
+            append_row(reinterpret_cast<const i8*>(&ft.threatAndPpWeights[list[i] * Dimensions]));
     }
 
     template<int sign>
@@ -463,6 +462,15 @@ class WeightRows {
     }
 
    private:
+    void append_row(const i8* row) {
+        rows[count++] = row;
+#if defined(USE_AVX512)
+        // Fetch the start of the next weight tile while the first tile is processed.
+        if constexpr (Tiling::TileHeight < Dimensions)
+            prefetch<PrefetchRw::READ, PrefetchLoc::HIGH>(row + Tiling::TileHeight);
+#endif
+    }
+
     const i8* rows[MaxRows];
     int       count = 0;
 };

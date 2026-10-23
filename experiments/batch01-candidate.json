@@ -1,0 +1,58 @@
+{
+  "batch": "b01",
+  "candidate": 3,
+  "branch": "bench/b01-03-next-tile-prefetch",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "source_path": "src/nnue/nnue_accumulator.cpp",
+  "hypothesis": "Prefetch the first cache line of the second weight tile while row pointers are collected. AVX-512 uses two 512-byte weight tiles for the current network; preparing the second tile earlier may hide memory latency. Extra prefetch traffic can also regress performance.",
+  "scope": "AVX-512 accumulator updates; other targets retain the existing arithmetic",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "build_type": "make build (release, LTO, without PGO)",
+    "host_cpu": "AMD EPYC 9V74",
+    "threads": 1,
+    "hash_mib": 16,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          }
+        ]
+      }
+    }
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

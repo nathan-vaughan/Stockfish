@@ -1,0 +1,96 @@
+{
+  "batch": "b02",
+  "candidate": 5,
+  "branch": "bench/b02-05-small-splat",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "base_branch": "bench/b01-base",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Use scalar move emission for tiny destination sets",
+  "source_path": "src/movegen.cpp",
+  "scope": "AVX-512 ICL pawn and piece move splats",
+  "hypothesis": "Bypass AVX-512 byte compression, widening and vector stores for zero or one destination. Scalar emission preserves the active move sequence. Added cardinality branches may be costly when most sets are larger.",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "host_cpu": "AMD EPYC 9V74",
+    "build_type": "release/LTO without PGO",
+    "threads": 1,
+    "hash_mib": 16,
+    "holdout_positions": 67,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "d350326492e59ce5bef3a2049b90c8ee5b821f9124264015883b2a91fa61719e",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "d350326492e59ce5bef3a2049b90c8ee5b821f9124264015883b2a91fa61719e",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      }
+    },
+    "extra_tests": []
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

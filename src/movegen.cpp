@@ -39,6 +39,15 @@ namespace {
 
 template<Direction offset>
 inline Move* splat_pawn_moves(Move* moveList, Bitboard to_bb) {
+    if (!to_bb)
+        return moveList;
+    if (!more_than_one(to_bb))
+    {
+        const Square to = lsb(to_bb);
+        *moveList++ = Move(to - offset, to);
+        return moveList;
+    }
+
     assert(popcount(to_bb) <= 8);  // <= 8 pawns per side
 
     const __m128i toSquares =
@@ -52,6 +61,14 @@ inline Move* splat_pawn_moves(Move* moveList, Bitboard to_bb) {
 }
 
 inline Move* splat_moves(Move* moveList, Square from, Bitboard to_bb) {
+    if (!to_bb)
+        return moveList;
+    if (!more_than_one(to_bb))
+    {
+        *moveList++ = Move(from, lsb(to_bb));
+        return moveList;
+    }
+
     assert(popcount(to_bb) <= 32);  // Q can attack up to 27 squares
 
     const __m512i fromVec = _mm512_set1_epi16(Move(from, SQUARE_ZERO).raw());

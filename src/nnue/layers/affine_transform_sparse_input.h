@@ -175,7 +175,9 @@ class AffineTransformSparseInput {
         // If we're using high-latency dot product instructions, split the accumulators
         // into separate dependency chains and merge at the end
         constexpr IndexType NumRegs =
-    #if (defined(USE_VNNI) && defined(USE_AVX512)) || defined(USE_NEON_DOTPROD)
+    #if defined(USE_VNNI) && defined(USE_AVX512)
+          2 * NumAccums;
+    #elif defined(USE_NEON_DOTPROD)
           3 * NumAccums;
     #elif defined(USE_AVXVNNI)
           2 * NumAccums;
@@ -206,30 +208,25 @@ class AffineTransformSparseInput {
         for (IndexType k = NumAccums; k < NumRegs; ++k)
             acc[k] = vec_zero();
         #if defined(USE_VNNI)
-        while (start < end - 2)
+        while (end - start >= 2)
         {
             const isize   i0  = *start++;
             const isize   i1  = *start++;
-            const isize   i2  = *start++;
             const invec_t in0 = vec_load_32(input + i0 * sizeof(i32));
             const invec_t in1 = vec_load_32(input + i1 * sizeof(i32));
-            const invec_t in2 = vec_load_32(input + i2 * sizeof(i32));
-            const auto    col0 =
+            const auto col0 =
               reinterpret_cast<const invec_t*>(&weights_cp[i0 * OutputDimensions * ChunkSize]);
             const auto col1 =
               reinterpret_cast<const invec_t*>(&weights_cp[i1 * OutputDimensions * ChunkSize]);
-            const auto col2 =
-              reinterpret_cast<const invec_t*>(&weights_cp[i2 * OutputDimensions * ChunkSize]);
             for (IndexType k = 0; k < NumAccums; ++k)
             {
                 vec_add_dpbusd_32(acc[k], in0, col0[k]);
                 vec_add_dpbusd_32(acc[k + NumAccums], in1, col1[k]);
-                vec_add_dpbusd_32(acc[k + 2 * NumAccums], in2, col2[k]);
             }
         }
 
         for (IndexType k = 0; k < NumAccums; ++k)
-            acc[k] = vec_add_32(vec_add_32(acc[k], acc[k + NumAccums]), acc[k + 2 * NumAccums]);
+            acc[k] = vec_add_32(acc[k], acc[k + NumAccums]);
         #endif
 
         while (start < end)

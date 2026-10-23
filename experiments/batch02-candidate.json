@@ -1,0 +1,96 @@
+{
+  "batch": "b02",
+  "candidate": 4,
+  "branch": "bench/b02-04-threat-prefetch-t0",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "base_branch": "bench/b01-base",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Prefetch threat rows with high locality",
+  "source_path": "src/nnue/features/full_threats.cpp",
+  "scope": "Existing NNUE full-threat prefetches on targets with prefetch support",
+  "hypothesis": "Change only the locality hint of existing threat-weight prefetches from LOW to HIGH. These rows are consumed soon after index generation; fetching their first cache line nearer to the execution core may reduce demand-load latency. It may increase L1 cache pollution. No extra prefetch addresses are added.",
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "host_cpu": "AMD EPYC 9V74",
+    "build_type": "release/LTO without PGO",
+    "threads": 1,
+    "hash_mib": 16,
+    "holdout_positions": 67,
+    "targets": {
+      "x86-64-avx512icl": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "89c6211b45dab3c03be57bf28a441daf0d56a2b9390835bc3b476fafc1a074cb",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      },
+      "x86-64-avx2": {
+        "compile": "pass",
+        "equivalence": "pass",
+        "source_sha256": "89c6211b45dab3c03be57bf28a441daf0d56a2b9390835bc3b476fafc1a074cb",
+        "checks": [
+          {
+            "depth": 13,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 1559611,
+            "matching_trace_lines": 690
+          },
+          {
+            "depth": 14,
+            "positions": "default",
+            "kind": "depth",
+            "nodes": 3178836,
+            "matching_trace_lines": 739
+          },
+          {
+            "depth": 8,
+            "positions": "experiments/batch02/holdout.fen",
+            "kind": "depth",
+            "nodes": 82787,
+            "matching_trace_lines": 604
+          },
+          {
+            "depth": 3,
+            "positions": "experiments/batch02/specials.fen",
+            "kind": "perft",
+            "nodes": 187239,
+            "matching_trace_lines": 0
+          }
+        ]
+      }
+    },
+    "extra_tests": []
+  },
+  "vm_recommended_target": "x86-64-avx512icl"
+}

@@ -232,7 +232,7 @@ void FullThreats::append_changed_indices(Color                   perspective,
         const IndexType index = lut1_flat[pair ^ pair_swap][from < to] + plut2[from][to];
 
         if (prefetchBase)
-            prefetch<PrefetchRw::READ, PrefetchLoc::LOW>(reinterpret_cast<const void*>(
+            prefetch<PrefetchRw::READ, PrefetchLoc::HIGH>(reinterpret_cast<const void*>(
               reinterpret_cast<uintptr_t>(prefetchBase) + uintptr_t(index) * prefetchStride));
 
         if (raw >> 31)
@@ -273,9 +273,9 @@ void FullThreats::append_changed_indices_both(Square                  white_ksq,
 
         if (prefetchBase)
         {
-            prefetch<PrefetchRw::READ, PrefetchLoc::LOW>(reinterpret_cast<const void*>(
+            prefetch<PrefetchRw::READ, PrefetchLoc::HIGH>(reinterpret_cast<const void*>(
               reinterpret_cast<uintptr_t>(prefetchBase) + uintptr_t(white_index) * prefetchStride));
-            prefetch<PrefetchRw::READ, PrefetchLoc::LOW>(reinterpret_cast<const void*>(
+            prefetch<PrefetchRw::READ, PrefetchLoc::HIGH>(reinterpret_cast<const void*>(
               reinterpret_cast<uintptr_t>(prefetchBase) + uintptr_t(black_index) * prefetchStride));
         }
 

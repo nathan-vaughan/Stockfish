@@ -698,13 +698,11 @@ bool Position::legal(Move m) const {
             return false;
 
         // Check if it's a valid capture, single push, or double push
-        const bool isCapture    = bool(attacks_bb(PAWN, from, us) & pieces(~us) & to);
-        const bool isSinglePush = (from + pawn_push(us) == to) && empty(to);
-        const bool isDoublePush = (from + 2 * pawn_push(us) == to)
-                               && (relative_rank(us, from) == RANK_2) && empty(to)
-                               && empty(to - pawn_push(us));
-
-        if (!(isCapture || isSinglePush || isDoublePush))
+        if (!((attacks_bb(PAWN, from, us) & pieces(~us) & to)
+              || ((from + pawn_push(us) == to) && empty(to))
+              || ((from + 2 * pawn_push(us) == to)
+                  && relative_rank(us, from) == RANK_2 && empty(to)
+                  && empty(to - pawn_push(us)))))
             return false;
     }
     else if (!(attacks_bb(type_of(pc), from, pieces()) & to))

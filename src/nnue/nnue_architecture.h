@@ -99,7 +99,7 @@ struct NetworkArchitecture {
             alignas(CacheLineSize) typename decltype(ac_sqr_0)::OutputType
               concat_buffer[ceil_to_multiple<IndexType>(FC_0_OUTPUTS * 2 + FC_1_OUTPUTS * 2, 32)];
             alignas(CacheLineSize) typename decltype(fc_1)::OutputBuffer fc_1_out;
-            alignas(CacheLineSize) typename decltype(fc_2)::OutputBuffer fc_2_out;
+            typename decltype(fc_2)::OutputType fc_2_out;
         };
 
         Buffer buffer;
@@ -122,10 +122,10 @@ struct NetworkArchitecture {
         ac_1.propagate(buffer.fc_1_out, buffer.concat_buffer + FC_0_OUTPUTS * 2 + FC_1_OUTPUTS);
 #endif
 
-        fc_2.propagate(buffer.concat_buffer, buffer.fc_2_out);
+        fc_2.propagate(buffer.concat_buffer, &buffer.fc_2_out);
 
         static_assert(FC_0_OUTPUTS >= 2);
-        i32 fwdOut = buffer.fc_2_out[0];
+        i32 fwdOut = buffer.fc_2_out;
         i32 skip_0 = buffer.fc_0_out[FC_0_OUTPUTS - 2] - buffer.fc_0_out[FC_0_OUTPUTS - 1];
         fwdOut += skip_0;
 

@@ -2045,28 +2045,28 @@ void update_all_stats(const Position& pos,
 // Updates the continuation histories for the move pairs formed by
 // the current move and the moves played in previous plies.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
-    static constexpr std::array<ConthistBonus, 5> conthist_bonuses = {
-      {{1, 520}, {2, 390}, {3, 145}, {4, 251}, {6, 209}}};
-
     // Multipliers for positive history consistency
     constexpr int CMHCMultipliers[] = {94, 103, 110, 106, 119, 126};
     int           positiveCount     = 0;
 
-    for (const auto [i, weight] : conthist_bonuses)
-    {
-        // Only update the first 2 continuation histories if we are in check
-        if (ss->inCheck && i > 2)
-            break;
-
+    const auto update = [&](auto distance, auto factor) {
+        constexpr int i = decltype(distance)::value;
+        constexpr int weight = decltype(factor)::value;
         if (((ss - i)->currentMove).is_ok())
         {
             auto& historyEntry = (*(ss - i)->continuationHistory)[pc][to];
-            if (historyEntry > 0)
-                positiveCount++;
-
-            int multiplier = CMHCMultipliers[positiveCount];
+            positiveCount += historyEntry > 0;
+            const int multiplier = CMHCMultipliers[positiveCount];
             historyEntry << bonus * weight * multiplier / 65536 + 73 * (i < 2);
         }
+    };
+    update(std::integral_constant<int, 1>{}, std::integral_constant<int, 520>{});
+    update(std::integral_constant<int, 2>{}, std::integral_constant<int, 390>{});
+    if (!ss->inCheck)
+    {
+        update(std::integral_constant<int, 3>{}, std::integral_constant<int, 145>{});
+        update(std::integral_constant<int, 4>{}, std::integral_constant<int, 251>{});
+        update(std::integral_constant<int, 6>{}, std::integral_constant<int, 209>{});
     }
 }
 

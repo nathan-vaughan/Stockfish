@@ -135,8 +135,14 @@ struct alignas(64) ThreatLUTs {
     // [attacker][attacked][from < to]
     std::array<std::array<std::array<u32, 2>, PIECE_NB>, PIECE_NB> lut1 = init_index_luts();
     // [pt][from][to]
-    std::array<std::array<std::array<u16, SQUARE_NB>, SQUARE_NB>, PIECE_TYPE_NB> lut2 =
-      index_lut2_array();
+    std::array<std::array<u16, SQUARE_NB>, PIECE_TYPE_NB> rowOffset = [] {
+        std::array<std::array<u16, SQUARE_NB>, PIECE_TYPE_NB> out{};
+        const auto full = index_lut2_array();
+        for (int pt = 0; pt < PIECE_TYPE_NB; ++pt)
+            for (int sq = 0; sq < SQUARE_NB; ++sq)
+                out[pt][sq] = full[pt][sq][0];
+        return out;
+    }();
 };
 
 constexpr ThreatLUTs threat_luts{};
@@ -153,7 +159,11 @@ sf_always_inline IndexType FullThreats::make_index(
     unsigned attacked_oriented = attacked ^ swap;
 
     return threat_luts.lut1[attacker_oriented][attacked_oriented][from_oriented < to_oriented]
-         + threat_luts.lut2[type_of(attacker)][from_oriented][to_oriented];
+         + threat_luts.rowOffset[type_of(attacker)][from_oriented]
+         + popcount(((1ULL << to_oriented) - 1)
+                    & Attacks::PseudoAttacks[type_of(attacker) == PAWN
+                        ? (to_oriented < from_oriented ? BLACK : WHITE)
+                        : int(type_of(attacker))][from_oriented]);
 }
 
 // Get a list of indices for active features in ascending order
@@ -227,9 +237,9 @@ void FullThreats::append_changed_indices(Color                   perspective,
         const unsigned from  = u8(raw) ^ orient;
         const unsigned to    = u8(raw >> 8) ^ orient;
         const unsigned pair  = u8(raw >> 16);
-        const auto&    plut2 = threat_luts.lut2[(pair >> 4) & 7];
+        const unsigned pt = (pair >> 4) & 7;
 
-        const IndexType index = lut1_flat[pair ^ pair_swap][from < to] + plut2[from][to];
+        const IndexType index = lut1_flat[pair ^ pair_swap][from < to] + (threat_luts.rowOffset[pt][from] + popcount(((1ULL << to) - 1) & Attacks::PseudoAttacks[pt == PAWN ? (to < from ? int(BLACK) : int(WHITE)) : int(pt)][from]));
 
         if (prefetchBase)
             prefetch<PrefetchRw::READ, PrefetchLoc::LOW>(reinterpret_cast<const void*>(
@@ -261,15 +271,15 @@ void FullThreats::append_changed_indices_both(Square                  white_ksq,
         const unsigned from  = u8(raw);
         const unsigned to    = u8(raw >> 8);
         const unsigned pair  = u8(raw >> 16);
-        const auto&    plut2 = threat_luts.lut2[(pair >> 4) & 7];
+        const unsigned pt = (pair >> 4) & 7;
 
         const unsigned  w_from      = from ^ w_orient;
         const unsigned  w_to        = to ^ w_orient;
-        const IndexType white_index = lut1_flat[pair][w_from < w_to] + plut2[w_from][w_to];
+        const IndexType white_index = lut1_flat[pair][w_from < w_to] + (threat_luts.rowOffset[pt][w_from] + popcount(((1ULL << w_to) - 1) & Attacks::PseudoAttacks[pt == PAWN ? (w_to < w_from ? int(BLACK) : int(WHITE)) : int(pt)][w_from]));
 
         const unsigned  b_from      = from ^ b_orient;
         const unsigned  b_to        = to ^ b_orient;
-        const IndexType black_index = lut1_flat[pair ^ 0x88][b_from < b_to] + plut2[b_from][b_to];
+        const IndexType black_index = lut1_flat[pair ^ 0x88][b_from < b_to] + (threat_luts.rowOffset[pt][b_from] + popcount(((1ULL << b_to) - 1) & Attacks::PseudoAttacks[pt == PAWN ? (b_to < b_from ? int(BLACK) : int(WHITE)) : int(pt)][b_from]));
 
         if (prefetchBase)
         {

@@ -117,9 +117,9 @@ struct Stack {
     PVMoves*                    pv;
     PieceToHistory*             continuationHistory;
     CorrectionHistory<PieceTo>* continuationCorrectionHistory;
-    int                         ply;
     Move                        currentMove;
     Move                        excludedMove;
+    int                         ply;
     Value                       staticEval;
     int                         statScore;
     int                         moveCount;

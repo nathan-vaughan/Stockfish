@@ -101,12 +101,13 @@ struct TTEntry {
 void TTEntry::save(
   Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev, u8 curr_generation) {
 
+    const u16 previousKey = key16;
     // Preserve the old ttmove if we don't have a new one
-    if (m || u16(k) != key16)
+    if (m || u16(k) != previousKey)
         move16 = m;
 
     // Overwrite less valuable entries (cheapest checks first)
-    if (b == BOUND_EXACT || u16(k) != key16 || d - DEPTH_NONE + 2 * pv > depth8 - 4
+    if (b == BOUND_EXACT || u16(k) != previousKey || d - DEPTH_NONE + 2 * pv > depth8 - 4
         || relative_age(curr_generation))
     {
         assert(d > DEPTH_NONE);
@@ -267,6 +268,9 @@ u8 TranspositionTable::generation() const { return generation8; }
 // data. Otherwise, it returns false and a pointer to an empty or least valuable
 // TTEntry to be replaced later. The value of an entry is its depth minus 8 times
 // its relative age.
+#if defined(__GNUC__)
+__attribute__((noinline))
+#endif
 std::tuple<bool, TTData, TTWriter> TranspositionTable::probe(const Key key) const {
 
     TTEntry* const tte   = first_entry(key);

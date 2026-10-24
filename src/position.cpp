@@ -674,6 +674,17 @@ bool Position::legal(Move m) const {
     Square to   = m.to_sq();
     Piece  pc   = moved_piece(m);
 
+    if (m.type_of() == EN_PASSANT)
+    {
+        if (pc != make_piece(us, PAWN) || to != ep_square() || !empty(to)
+            || !(attacks_bb(PAWN, from, us) & to))
+            return false;
+        const Square cap = to - pawn_push(us);
+        if (piece_on(cap) != make_piece(~us, PAWN))
+            return false;
+        const Bitboard occupied = (pieces() ^ from ^ cap) | to;
+        return !(attackers_to(square<KING>(us), occupied) & pieces(~us) & ~square_bb(cap));
+    }
     // Use a slower but simpler function for uncommon cases
     if (m.type_of() != NORMAL)
         return MoveList<ALL>(*this).contains(m);
@@ -1519,7 +1530,10 @@ bool Position::upcoming_repetition(int ply) const {
 
         Key moveKey = originalKey ^ stp->key;
 
-        if (int j = H1(moveKey); cuckoo[j] == moveKey || (j = H2(moveKey), cuckoo[j] == moveKey))
+        const int j1 = H1(moveKey), j2 = H2(moveKey);
+        const bool hit1 = cuckoo[j1] == moveKey;
+        const bool hit2 = cuckoo[j2] == moveKey;
+        if (int j = hit1 ? j1 : j2; hit1 | hit2)
         {
             Move   move = cuckooMove[j];
             Square s1   = move.from_sq();

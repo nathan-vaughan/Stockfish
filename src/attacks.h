@@ -110,9 +110,15 @@ struct alignas(32) DualMagic {
     std::pair<Bitboard, Bitboard> both_attacks_bb(Bitboard occupied) const {
         // Byteswap within 128-bit elements
         const auto bswap = [](__m256i v) {
+#if defined(USE_AVX512ICL)
+            return _mm256_permutexvar_epi8(_mm256_setr_epi8(
+              15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,
+              31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16), v);
+#else
             return _mm256_shuffle_epi8(v, _mm256_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
                                                           13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
                                                           10, 11, 12, 13, 14, 15));
+#endif
         };
 
         // Each lane contains a mask and we follow the same HQ algorithm as
@@ -130,7 +136,7 @@ struct alignas(32) DualMagic {
         const __m256i rookBishop =
           _mm256_or_si256(result, _mm256_permute4x64_epi64(result, _MM_SHUFFLE(3, 1, 2, 0)));
 
-        Bitboard rowOccupancy = rankAttacksLookup[(occupied >> (shift + 1)) & 0x3f];
+        Bitboard rowOccupancy = rankAttacksLookup[_pext_u64(occupied, 0x7eULL << shift)];
         Bitboard rankAttacks  = rowOccupancy << shift;
 
         // [bishop, rook]

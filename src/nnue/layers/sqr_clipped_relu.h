@@ -97,7 +97,7 @@ class SqrClippedReLU {
             _mm256_store_si256(&sqrOut[i], _mm512_cvtsepi16_epi8(sqrWords));
 
             const __m512i clipWords =
-              _mm512_srli_epi16(_mm512_max_epi16(words, zero), WeightScaleBitsLocal);
+              _mm512_maskz_srli_epi16(_mm512_cmpgt_epi16_mask(words, zero), words, WeightScaleBitsLocal);
             _mm256_store_si256(&clipOut[i], _mm512_cvtsepi16_epi8(clipWords));
         }
 

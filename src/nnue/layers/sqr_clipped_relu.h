@@ -81,7 +81,7 @@ class SqrClippedReLU {
         constexpr IndexType NumChunks       = InputDimensions / 32;
         constexpr int       SimdShiftAmount = WeightScaleBitsLocal * 2 + 7 - 16;
 
-    #if defined(USE_AVX512)
+    #if defined(USE_AVX512) && !defined(USE_AVX2)
         const auto in      = reinterpret_cast<const __m512i*>(input);
         auto       sqrOut  = reinterpret_cast<__m256i*>(squared);
         auto       clipOut = reinterpret_cast<__m256i*>(clipped);

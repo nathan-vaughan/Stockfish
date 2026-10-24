@@ -158,7 +158,7 @@ class AffineTransform {
         // separate SqrClippedReLU/ClippedReLU propagate() calls, so no shuffle is needed at runtime.
         const IndexType block = inputIndex / 32;
         const IndexType chunk = (inputIndex % 32) / 4;
-    #if defined(USE_AVX512)
+    #if defined(USE_AVX512) && !defined(USE_AVX2)
         inputIndex = block * 32 + ((chunk % 4) * 2 + chunk / 4) * 4 + inputIndex % 4;
     #else
         inputIndex = block * 32 + ((chunk % 2) * 4 + chunk / 2) * 4 + inputIndex % 4;

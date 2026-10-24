@@ -200,44 +200,12 @@ class AffineTransformSparseInput {
         const i8* weights_cp = weights;
 
     #if defined(USE_AVX512)
-        const auto* start = nnzInfo.nnz;
-        const auto* end   = nnzInfo.nnz + nnzInfo.count;
-
-        for (IndexType k = NumAccums; k < NumRegs; ++k)
-            acc[k] = vec_zero();
-        #if defined(USE_VNNI)
-        while (start < end - 2)
+        // Dense sweep: eliminate index-list reads and irregular column selection.
+        for (IndexType i = 0; i < InputDimensions / ChunkSize; ++i)
         {
-            const isize   i0  = *start++;
-            const isize   i1  = *start++;
-            const isize   i2  = *start++;
-            const invec_t in0 = vec_load_32(input + i0 * sizeof(i32));
-            const invec_t in1 = vec_load_32(input + i1 * sizeof(i32));
-            const invec_t in2 = vec_load_32(input + i2 * sizeof(i32));
-            const auto    col0 =
-              reinterpret_cast<const invec_t*>(&weights_cp[i0 * OutputDimensions * ChunkSize]);
-            const auto col1 =
-              reinterpret_cast<const invec_t*>(&weights_cp[i1 * OutputDimensions * ChunkSize]);
-            const auto col2 =
-              reinterpret_cast<const invec_t*>(&weights_cp[i2 * OutputDimensions * ChunkSize]);
-            for (IndexType k = 0; k < NumAccums; ++k)
-            {
-                vec_add_dpbusd_32(acc[k], in0, col0[k]);
-                vec_add_dpbusd_32(acc[k + NumAccums], in1, col1[k]);
-                vec_add_dpbusd_32(acc[k + 2 * NumAccums], in2, col2[k]);
-            }
-        }
-
-        for (IndexType k = 0; k < NumAccums; ++k)
-            acc[k] = vec_add_32(vec_add_32(acc[k], acc[k + NumAccums]), acc[k + 2 * NumAccums]);
-        #endif
-
-        while (start < end)
-        {
-            const isize   i  = *start++;
             const invec_t in = vec_load_32(input + i * sizeof(i32));
-            const auto    col =
-              reinterpret_cast<const invec_t*>(&weights_cp[i * OutputDimensions * ChunkSize]);
+            const auto col = reinterpret_cast<const invec_t*>(
+              &weights_cp[i * OutputDimensions * ChunkSize]);
             for (IndexType k = 0; k < NumAccums; ++k)
                 vec_add_dpbusd_32(acc[k], in, col[k]);
         }

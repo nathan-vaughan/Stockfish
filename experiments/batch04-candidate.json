@@ -1,0 +1,50 @@
+{
+  "batch": "b04",
+  "candidate": 14,
+  "branch": "bench/b04-14-dense-first-layer",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Sweep the first NNUE layer densely",
+  "hypothesis": "Trade extra VNNI operations for sequential weight access, no NNZ indirection, and simpler control flow.",
+  "source_paths": [
+    "src/nnue/layers/affine_transform_sparse_input.h"
+  ],
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "build_type": "release/LTO without PGO",
+    "target": "x86-64-avx512icl",
+    "host_cpu": "AMD EPYC 9V74",
+    "checks": [
+      {
+        "depth": 13,
+        "positions": "default",
+        "kind": "depth",
+        "nodes": 1559611,
+        "matching_trace_lines": 690
+      },
+      {
+        "depth": 14,
+        "positions": "default",
+        "kind": "depth",
+        "nodes": 3178836,
+        "matching_trace_lines": 739
+      },
+      {
+        "depth": 8,
+        "positions": "experiments/batch04/holdout.fen",
+        "kind": "depth",
+        "nodes": 82787,
+        "matching_trace_lines": 604
+      },
+      {
+        "depth": 3,
+        "positions": "experiments/batch04/specials.fen",
+        "kind": "perft",
+        "nodes": 187239,
+        "matching_trace_lines": 0
+      }
+    ]
+  }
+}

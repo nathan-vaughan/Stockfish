@@ -671,9 +671,9 @@ void Search::Worker::do_move(Position&    pos,
         const Piece  pc = pos.moved_piece(move);
         const Square to = move.to_sq();
 
-        prefetch(&(*(ss - 1)->continuationCorrectionHistory)[pc][to]);
-        prefetch(&(*(ss - 3)->continuationCorrectionHistory)[pc][to]);
-        prefetch(&(*(ss - 5)->continuationCorrectionHistory)[pc][to]);
+        // Experiment: leave continuation-correction lines to demand loads.
+        (void) pc;
+        (void) to;
     }
 
     ++nodes;

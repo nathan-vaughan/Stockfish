@@ -61,12 +61,16 @@ Value scale_evaluation(Value nnue, int optimism, const Position& pos) {
     Value se = simple_eval(pos);
 
     // Normalize the raw evaluations to [-1024, 1024] to measure their correlation.
-    int se_norm   = (se * 1024) / (std::abs(se) + 1024);
-    int nnue_norm = (nnue * 1024) / (std::abs(nnue) + 1024);
+    int correl = 0;
+    if (se != 0)
+    {
+        const int se_norm = (se * 1024) / (std::abs(se) + 1024);
+        const int nnue_norm = (nnue * 1024) / (std::abs(nnue) + 1024);
+        correl = (se_norm * nnue_norm) / 512;
+    }
     // When NNUE and material agree (positive correlation), the position is straightforward;
     // otherwise (negative correlation) it involves complex compensation. In a representative
     // sample, correl averages -1 or so, i.e. it is well-centered in [-2048, 2048].
-    int correl = (se_norm * nnue_norm) / 512;
 
     // When winning, we boost easy positions, and vice versa
     int v = nnue + (nnue * correl) / 65536 + (optimism * correl) / 16384;

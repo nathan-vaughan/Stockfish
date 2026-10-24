@@ -205,6 +205,9 @@ Move* generate_moves(const Position& pos, Move* moveList, Bitboard target, Color
     while (bb)
     {
         Square   from = pop_lsb(bb);
+        if constexpr (Pt == BISHOP || Pt == ROOK || Pt == QUEEN)
+            if (!(Attacks::attacks_bb(Pt, from) & target))
+                continue;
         Bitboard b    = Attacks::attacks_bb(Pt, from, pos.pieces()) & target;
 
         moveList = splat_moves(moveList, from, b);

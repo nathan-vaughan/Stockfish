@@ -594,7 +594,12 @@ void update_accumulator_incremental_both(const FeatureTransformer& featureTransf
 
 Bitboard get_changed_pieces(const std::array<Piece, SQUARE_NB>& oldPieces,
                             const std::array<Piece, SQUARE_NB>& newPieces) {
-#if defined(USE_AVX2)
+#if defined(USE_AVX512)
+    static_assert(sizeof(Piece) == 1);
+    const __m512i oldBoard = _mm512_loadu_si512(oldPieces.data());
+    const __m512i newBoard = _mm512_loadu_si512(newPieces.data());
+    return _mm512_cmpneq_epi8_mask(oldBoard, newBoard);
+#elif defined(USE_AVX2)
     static_assert(sizeof(Piece) == 1);
     Bitboard sameBB = 0;
 

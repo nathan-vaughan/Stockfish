@@ -41,8 +41,8 @@ class FeatureTransformer;
 // Class that holds the result of affine transformation of input features,
 // combined HalfKA + Threats
 struct alignas(CacheLineSize) Accumulator {
-    std::array<std::array<i16, L1>, COLOR_NB> accumulation;
-    std::array<bool, COLOR_NB>                computed = {};
+    std::array<bool, COLOR_NB> computed = {};
+    alignas(CacheLineSize) std::array<std::array<i16, L1>, COLOR_NB> accumulation;
 };
 
 

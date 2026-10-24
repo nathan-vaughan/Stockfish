@@ -643,7 +643,7 @@ void Position::update_slider_blockers(Color c) const {
         Square   sniperSq = pop_lsb(snipers);
         Bitboard b        = between_bb(ksq, sniperSq) & occupancy;
 
-        if (b && !more_than_one(b))
+        if (popcount(b) == 1)
         {
             st->blockersForKing[c] |= b;
             if (b & pieces(c))

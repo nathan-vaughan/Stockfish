@@ -98,6 +98,8 @@ void AccumulatorStack::evaluate(const Position&           pos,
                                 const FeatureTransformer& featureTransformer,
                                 // Silence spurious warning on GCC 10
                                 [[maybe_unused]] AccumulatorCaches& cache) noexcept {
+    if (latest().computed[WHITE] && latest().computed[BLACK])
+        return;
     const usize last_white = find_last_usable_accumulator(WHITE);
     const usize last_black = find_last_usable_accumulator(BLACK);
 

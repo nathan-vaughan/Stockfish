@@ -267,6 +267,9 @@ u8 TranspositionTable::generation() const { return generation8; }
 // data. Otherwise, it returns false and a pointer to an empty or least valuable
 // TTEntry to be replaced later. The value of an entry is its depth minus 8 times
 // its relative age.
+#if defined(__GNUC__)
+__attribute__((noinline))
+#endif
 std::tuple<bool, TTData, TTWriter> TranspositionTable::probe(const Key key) const {
 
     TTEntry* const tte   = first_entry(key);

@@ -43,9 +43,10 @@ inline Move* splat_pawn_moves(Move* moveList, Bitboard to_bb) {
 
     const __m128i toSquares =
       _mm_cvtepi8_epi16(_mm512_castsi512_si128(_mm512_maskz_compress_epi8(to_bb, AllSquares)));
-    const __m128i fromSquares = _mm_subs_epi16(toSquares, _mm_set1_epi16(offset));
-    const __m128i moves       = _mm_or_si128(_mm_slli_epi16(fromSquares, Move::FromSqShift),
-                                             _mm_slli_epi16(toSquares, Move::ToSqShift));
+    static_assert(Move::FromSqShift == 6 && Move::ToSqShift == 0);
+    const __m128i moves = _mm_sub_epi16(
+      _mm_add_epi16(_mm_slli_epi16(toSquares, 6), toSquares),
+      _mm_set1_epi16(offset * 64));
 
     _mm_storeu_si128(reinterpret_cast<__m128i*>(moveList), moves);
     return moveList + popcount(to_bb);

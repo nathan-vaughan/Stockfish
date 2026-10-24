@@ -197,6 +197,12 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
     static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
     Color us = pos.side_to_move();
+    [[maybe_unused]] static constexpr auto CaptureValues = [] {
+        std::array<int, PIECE_NB> values{};
+        for (int p = 0; p < PIECE_NB; ++p)
+            values[p] = 7 * int(PieceValue[p]);
+        return values;
+    }();
 
     [[maybe_unused]] Bitboard threatByLesser[KING + 1];
     if constexpr (Type == QUIETS)
@@ -223,7 +229,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
 
         if constexpr (Type == CAPTURES)
             m.value = (*captureHistory)[pc][to][type_of(capturedPiece)]
-                    + 7 * int(PieceValue[capturedPiece]);
+                    + CaptureValues[capturedPiece];
 
         else if constexpr (Type == QUIETS)
         {

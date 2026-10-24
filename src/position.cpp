@@ -674,6 +674,17 @@ bool Position::legal(Move m) const {
     Square to   = m.to_sq();
     Piece  pc   = moved_piece(m);
 
+    if (m.type_of() == EN_PASSANT)
+    {
+        if (pc != make_piece(us, PAWN) || to != ep_square() || !empty(to)
+            || !(attacks_bb(PAWN, from, us) & to))
+            return false;
+        const Square cap = to - pawn_push(us);
+        if (piece_on(cap) != make_piece(~us, PAWN))
+            return false;
+        const Bitboard occupied = (pieces() ^ from ^ cap) | to;
+        return !(attackers_to(square<KING>(us), occupied) & pieces(~us) & ~square_bb(cap));
+    }
     // Use a slower but simpler function for uncommon cases
     if (m.type_of() != NORMAL)
         return MoveList<ALL>(*this).contains(m);

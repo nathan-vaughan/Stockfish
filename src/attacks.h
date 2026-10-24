@@ -108,6 +108,14 @@ struct alignas(32) DualMagic {
     // only, we use a compact lookup table indexed by the 6 inner bits of the rank's
     // occupancy (the edge squares never affect the attack set).
     std::pair<Bitboard, Bitboard> both_attacks_bb(Bitboard occupied) const {
+#if defined(__GNUC__)
+        const auto line = [&](Bitboard mask) {
+            const Bitboard o = occupied & mask;
+            return ((o - r) ^ __builtin_bswap64(__builtin_bswap64(o) - rr)) & mask;
+        };
+        return {line(maskDiag) | line(maskAntidiag),
+                line(maskFile) | (Bitboard(rankAttacksLookup[(occupied >> (shift + 1)) & 63]) << shift)};
+#endif
         // Byteswap within 128-bit elements
         const auto bswap = [](__m256i v) {
             return _mm256_shuffle_epi8(v, _mm256_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,

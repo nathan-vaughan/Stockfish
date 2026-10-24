@@ -493,11 +493,11 @@ void apply_combined(Color                              perspective,
 
     for (IndexType j = 0; j < Dimensions; increment_index(j))
     {
-        acc = load_tile(j, fromAcc.data());
-
+        alignas(64) static constexpr i16 zeros[Dimensions] = {};
+        acc = load_tile(j, zeros);
         acc = removed.apply<-1>(j, acc);
         acc = added.apply<+1>(j, acc);
-
+        acc = apply<+1>(j, acc, fromAcc.data());
         store_tile(j, toAcc.data(), acc);
     }
 }

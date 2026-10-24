@@ -897,7 +897,8 @@ void update_accumulator_refresh_cache(Color                     perspective,
         acc = entryRemoved.apply<-1>(j, acc);
         acc = entryAdded.apply<+1>(j, acc);
 
-        store_tile(j, &entry.accumulation[0], acc);
+        if (removed.ssize() || added.ssize())
+            store_tile(j, &entry.accumulation[0], acc);
 
         acc = activeThreats.apply<+1>(j, acc);
 

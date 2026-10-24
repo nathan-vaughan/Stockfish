@@ -355,8 +355,8 @@ static_assert(MaxChunkSize == sizeof(vec_t), "MaxChunkSize must equal one vector
 
 [[maybe_unused]] static int m256_hadd(__m256i sum, int bias) {
     __m128i sum128 = _mm_add_epi32(_mm256_castsi256_si128(sum), _mm256_extracti128_si256(sum, 1));
-    sum128         = _mm_add_epi32(sum128, _mm_shuffle_epi32(sum128, _MM_PERM_BADC));
-    sum128         = _mm_add_epi32(sum128, _mm_shuffle_epi32(sum128, _MM_PERM_CDAB));
+    sum128 = _mm_hadd_epi32(sum128, sum128);
+    sum128 = _mm_hadd_epi32(sum128, sum128);
     return _mm_cvtsi128_si32(sum128) + bias;
 }
 

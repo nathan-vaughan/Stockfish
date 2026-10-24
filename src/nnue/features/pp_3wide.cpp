@@ -179,6 +179,8 @@ void PP_3Wide::append_changed_indices_both(Square                  white_ksq,
                                            IndexType               prefetchStride) {
 
 #ifdef USE_AVX512ICL
+    if (diff.before[WHITE] == diff.after[WHITE] && diff.before[BLACK] == diff.after[BLACK])
+        return;
     append_changed_indices(WHITE, white_ksq, diff, white_removed, white_added, prefetchBase,
                            prefetchStride);
     append_changed_indices(BLACK, black_ksq, diff, black_removed, black_added, prefetchBase,

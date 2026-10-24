@@ -314,6 +314,14 @@ class AffineTransform {
         }
         else if constexpr (OutputDimensions == 1)
         {
+    #if defined(USE_AVX512) && defined(USE_VNNI)
+            __m512i sum = _mm512_setzero_si512();
+            for (IndexType j = 0; j < PaddedInputDimensions; j += 64)
+                sum = _mm512_dpbusd_epi32(sum, _mm512_load_si512(input + j),
+                                          _mm512_load_si512(weights + j));
+            output[0] = _mm512_reduce_add_epi32(sum) + biases[0];
+            return;
+    #endif
     #if defined(USE_AVX2)
             using vec_t = __m256i;
         #define vec_setzero() _mm256_setzero_si256()

@@ -269,41 +269,17 @@ class AffineTransform {
             for (IndexType k = NumAccums; k < NumRegs; ++k)
                 acc[k] = vec_set_32(0);
 
-            IndexType i = 0;
-    #if defined(USE_VNNI) || defined(USE_NEON_DOTPROD)
-            for (; i < NumChunks; i += 2)
-            {
-                const vec_t in0 = vec_load_32(input + i * sizeof(i32));
-                const vec_t in1 = vec_load_32(input + (i + 1) * sizeof(i32));
-                const auto  col0 =
-                  reinterpret_cast<const vec_t*>(&weights[i * OutputDimensions * 4]);
-                const auto col1 =
-                  reinterpret_cast<const vec_t*>(&weights[(i + 1) * OutputDimensions * 4]);
-
-                for (IndexType k = 0; k < NumAccums; ++k)
-                {
-                    vec_add_dpbusd_32(acc[k], in0, col0[k]);
-                    vec_add_dpbusd_32(acc[k + NumAccums], in1, col1[k]);
-                }
-            }
-
             for (IndexType k = 0; k < NumAccums; ++k)
-        #if defined(USE_NEON_DOTPROD)
-                acc[k] = vaddq_s32(acc[k], acc[k + NumAccums]);
-        #else
-                acc[k] = vec_add_32(acc[k], acc[k + NumAccums]);
-        #endif
-    #endif
-            for (; i < NumChunks; ++i)
             {
-                const vec_t in0 = vec_load_32(input + i * sizeof(i32));
-                const auto  col0 =
-                  reinterpret_cast<const vec_t*>(&weights[i * OutputDimensions * 4]);
-
-                for (IndexType k = 0; k < NumAccums; ++k)
-                    vec_add_dpbusd_32(acc[k], in0, col0[k]);
+                vec_t sum = acc[k];
+                for (IndexType i = 0; i < NumChunks; ++i)
+                {
+                    const vec_t in = vec_load_32(input + i * sizeof(i32));
+                    const auto col = reinterpret_cast<const vec_t*>(&weights[i * OutputDimensions * 4]);
+                    vec_add_dpbusd_32(sum, in, col[k]);
+                }
+                acc[k] = sum;
             }
-
             vec_t* outptr = reinterpret_cast<vec_t*>(output);
             for (IndexType k = 0; k < NumAccums; ++k)
                 outptr[k] = acc[k];

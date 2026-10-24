@@ -204,7 +204,7 @@ class AffineTransform {
     }
 
     // Forward propagation
-    void propagate(const InputType* input, OutputType* output) const {
+    void propagate(const InputType* RESTRICT input, OutputType* RESTRICT output) const {
 
 #ifdef ENABLE_SEQ_OPT
 

@@ -1,0 +1,50 @@
+{
+  "batch": "b04",
+  "candidate": 17,
+  "branch": "bench/b04-17-split-activations",
+  "base_commit": "effdc3fd3f6de6e75fe1374a51a7a7eed66f880b",
+  "expected_default_bench": 1559611,
+  "ready_for_vm_benchmark": true,
+  "performance_status": "unmeasured",
+  "title": "Run independent squared and linear activation kernels",
+  "hypothesis": "Disable activation fusion and load-time lane scrambling to test smaller SSE kernels against paired wide kernels.",
+  "source_paths": [
+    "src/nnue/simd.h"
+  ],
+  "local_validation": {
+    "compiler": "GCC 13.3.0",
+    "build_type": "release/LTO without PGO",
+    "target": "x86-64-avx512icl",
+    "host_cpu": "AMD EPYC 9V74",
+    "checks": [
+      {
+        "depth": 13,
+        "positions": "default",
+        "kind": "depth",
+        "nodes": 1559611,
+        "matching_trace_lines": 690
+      },
+      {
+        "depth": 14,
+        "positions": "default",
+        "kind": "depth",
+        "nodes": 3178836,
+        "matching_trace_lines": 739
+      },
+      {
+        "depth": 8,
+        "positions": "experiments/batch04/holdout.fen",
+        "kind": "depth",
+        "nodes": 82787,
+        "matching_trace_lines": 604
+      },
+      {
+        "depth": 3,
+        "positions": "experiments/batch04/specials.fen",
+        "kind": "perft",
+        "nodes": 187239,
+        "matching_trace_lines": 0
+      }
+    ]
+  }
+}

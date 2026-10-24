@@ -52,7 +52,7 @@
 namespace Stockfish::Eval::NNUE::SIMD {
 
 #if defined(USE_AVX2)
-    #define USE_PAIR_ACTIVATIONS
+    // Experiment: use separate activation passes.
 #endif
 
 // On x86 with SSSE3 or better, two int8 weight rows can be widened and summed

@@ -95,7 +95,7 @@ struct alignas(32) DualMagic {
     // Precomputed 2 * square_bb(sq), 2 * reverse(square_bb(sq))
     Bitboard r, rr;
 
-    const u8* RESTRICT rankAttacksLookup;
+    std::array<u8, 64> rankAttacksLookup;
     // 8 * rank_of(sq)
     int shift;
 

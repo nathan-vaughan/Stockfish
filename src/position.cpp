@@ -1029,7 +1029,8 @@ void Position::do_move(Move                      m,
     if (end >= 4)
     {
         StateInfo* stp = st->previous->previous;
-        for (int i = 4; i <= end; i += 2)
+        int i = 4;
+        for (; i + 2 <= end; i += 4)
         {
             stp = stp->previous->previous;
             if (stp->key == st->key)
@@ -1037,6 +1038,18 @@ void Position::do_move(Move                      m,
                 st->repetition = stp->repetition ? -i : i;
                 break;
             }
+            stp = stp->previous->previous;
+            if (stp->key == st->key)
+            {
+                st->repetition = stp->repetition ? -(i + 2) : i + 2;
+                break;
+            }
+        }
+        if (!st->repetition && i <= end)
+        {
+            stp = stp->previous->previous;
+            if (stp->key == st->key)
+                st->repetition = stp->repetition ? -i : i;
         }
     }
 

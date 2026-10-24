@@ -483,6 +483,12 @@ void apply_combined(Color                              perspective,
     const auto& fromAcc = from.accumulation[perspective];
     auto&       toAcc   = to.accumulation[perspective];
 
+    if (psqAdded.ssize() == 0 && psqRemoved.ssize() == 0
+        && thrAdded.ssize() == 0 && thrRemoved.ssize() == 0)
+    {
+        toAcc = fromAcc;
+        return;
+    }
     AllWeightRows removed, added;
     removed.append_psq(psqRemoved, featureTransformer);
     removed.append_threat(thrRemoved, featureTransformer);

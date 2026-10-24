@@ -54,13 +54,23 @@ inline Move* splat_pawn_moves(Move* moveList, Bitboard to_bb) {
 inline Move* splat_moves(Move* moveList, Square from, Bitboard to_bb) {
     assert(popcount(to_bb) <= 32);  // Q can attack up to 27 squares
 
-    const __m512i fromVec = _mm512_set1_epi16(Move(from, SQUARE_ZERO).raw());
-    const __m512i toSquares =
-      _mm512_cvtepi8_epi16(_mm512_castsi512_si256(_mm512_maskz_compress_epi8(to_bb, AllSquares)));
-    const __m512i moves = _mm512_or_si512(fromVec, _mm512_slli_epi16(toSquares, Move::ToSqShift));
-
-    _mm512_storeu_si512(moveList, moves);
-    return moveList + popcount(to_bb);
+    alignas(64) static constexpr auto targets = [] {
+        std::array<u16, 64> out{};
+        for (unsigned i = 0; i < 64; ++i) out[i] = u16(i << Move::ToSqShift);
+        return out;
+    }();
+    const __m512i f = _mm512_set1_epi16(Move(from, SQUARE_ZERO).raw());
+    for (unsigned half = 0; half < 2; ++half)
+    {
+        const u32 mask = u32(to_bb >> (half * 32));
+        if (!mask) continue;
+        const unsigned n = popcount(mask);
+        const __m512i encoded = _mm512_or_si512(f, _mm512_load_si512(targets.data() + half * 32));
+        const __m512i compact = _mm512_maskz_compress_epi16(mask, encoded);
+        _mm512_mask_storeu_epi16(moveList, _bzhi_u32(~0u, n), compact);
+        moveList += n;
+    }
+    return moveList;
 }
 
 #else

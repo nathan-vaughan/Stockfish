@@ -61,8 +61,22 @@ Value scale_evaluation(Value nnue, int optimism, const Position& pos) {
     Value se = simple_eval(pos);
 
     // Normalize the raw evaluations to [-1024, 1024] to measure their correlation.
-    int se_norm   = (se * 1024) / (std::abs(se) + 1024);
-    int nnue_norm = (nnue * 1024) / (std::abs(nnue) + 1024);
+    const auto normalize = [](int value) {
+#if defined(USE_SSE2)
+        const u64 magnitude = u64(std::abs(value));
+        const u64 denominator = magnitude + 1024;
+        const u64 numerator = magnitude * 1024;
+        const float reciprocal = _mm_cvtss_f32(_mm_rcp_ss(_mm_set_ss(float(denominator))));
+        u64 quotient = u64(float(numerator) * reciprocal);
+        while (quotient * denominator > numerator) --quotient;
+        while ((quotient + 1) * denominator <= numerator) ++quotient;
+        return value < 0 ? -int(quotient) : int(quotient);
+#else
+        return (value * 1024) / (std::abs(value) + 1024);
+#endif
+    };
+    int se_norm = normalize(se);
+    int nnue_norm = normalize(nnue);
     // When NNUE and material agree (positive correlation), the position is straightforward;
     // otherwise (negative correlation) it involves complex compensation. In a representative
     // sample, correl averages -1 or so, i.e. it is well-centered in [-2048, 2048].

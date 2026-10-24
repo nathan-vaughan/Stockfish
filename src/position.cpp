@@ -1517,7 +1517,10 @@ bool Position::upcoming_repetition(int ply) const {
 
         Key moveKey = originalKey ^ stp->key;
 
-        if (int j = H1(moveKey); cuckoo[j] == moveKey || (j = H2(moveKey), cuckoo[j] == moveKey))
+        const int j1 = H1(moveKey), j2 = H2(moveKey);
+        const bool hit1 = cuckoo[j1] == moveKey;
+        const bool hit2 = cuckoo[j2] == moveKey;
+        if (int j = hit1 ? j1 : j2; hit1 | hit2)
         {
             Move   move = cuckooMove[j];
             Square s1   = move.from_sq();
